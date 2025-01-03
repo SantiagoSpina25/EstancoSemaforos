@@ -46,6 +46,10 @@ public class Fumador extends Thread {
                 }
                 else{
                     estanco.fumar(nombre);
+                    numTabacoPropio--;
+                    numPapelPropio--;
+                    numCerillasPropias--;
+                    System.out.println(nombre + " ya fumo su cigarro, esta listo para otro");
                 }
             } catch (Exception e) {
                 System.out.println(e);

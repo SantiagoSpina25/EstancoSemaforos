@@ -10,52 +10,61 @@ import java.util.logging.Logger;
  */
 public class Estanco {
 
+    //Se crea un semaforo para cada ingrediente
     private final Semaphore semaforoTabaco = new Semaphore(0);
     private final Semaphore semaforoPapel = new Semaphore(0);
     private final Semaphore semaforoCerillas = new Semaphore(0);
-    private final Semaphore semaforoEspera = new Semaphore(1);
-    int numTabaco = 0, numPapel = 0, numCerillas = 0, tiempoProduccion, tiempoFumando = 1000;
+    
+    //Mejora n2. se crea un semaforo para controlar si hay o no peticiones de ingredientes.
+    private final Semaphore semaforoPeticiones = new Semaphore(0);
+    
+    //Se crea un contador para cada ingrediente, ademas del tiempo de produccion y el tiempo fumando que seran constantes
+    int numTabaco = 0, numPapel = 0, numCerillas = 0;
+    final int tiempoProduccion, tiempoFumando = 1000;
+    private String ingredienteNecesitado;
 
     public Estanco(int tiempoProduccion) {
         this.tiempoProduccion = tiempoProduccion;
     }
 
-    //Este metodo produce un ingrediente aleatorio entre tabaco, papel y cerillas.  
+    //Este metodo produce un ingrediente aleatorio entre tabaco, papel y cerillas, mostrando el inventario actual.  
     public void producirIngrediente() {
         try {
-            System.out.println("-----------------------------------\nNumero de ingredientes en el estanco actuales:\n Tabaco: " + numTabaco + "\n Papel: " + numPapel + "\n Cerillas: " + numCerillas + "\n-----------------------------------\n");
+            semaforoPeticiones.acquire();
 
-            int random = (int) (Math.random() * 3) + 1;
-
-            switch (random) {
-                case 1:
-                    System.out.println("Estanquero produce tabaco");
+            //Mejora n1. El estanquero priorizara el material mas necesitado
+           System.out.println("El estanquero produce " + ingredienteNecesitado);
+            switch (ingredienteNecesitado) {
+                case "tabaco":
                     numTabaco++;
                     semaforoTabaco.release();
                     break;
-                case 2:
-                    System.out.println("Estanquero produce papel");
+                case "papel":
                     numPapel++;
                     semaforoPapel.release();
                     break;
-                case 3:
-                    System.out.println("Estanquero produce cerillas");
+                case "cerillas":
                     numCerillas++;
                     semaforoCerillas.release();
                     break;
             }
-
+            
             Thread.sleep(tiempoProduccion);
+            
+            System.out.println("-----------------------------------\nNumero de ingredientes en el estanco actuales:\n Tabaco: " + numTabaco + "\n Papel: " + numPapel + "\n Cerillas: " + numCerillas + "\n-----------------------------------\n");
 
         } catch (InterruptedException e) {
             System.out.println(e);
         }
     }
-
+    
+    //Este metodo lo utiliza el fumador, pidiendo el ingrediente que precisa en ese momento y tomandolo cuando esté disponible
     public void pedirIngrediente(String ingrediente, String nombre) {
         try {
-            semaforoEspera.acquire();
+            ingredienteNecesitado = ingrediente;
             System.out.println(nombre + " pide " + ingrediente + "...");
+            semaforoPeticiones.release();
+            
             switch (ingrediente) {
                 case "tabaco":
                     semaforoTabaco.acquire();
@@ -80,9 +89,9 @@ public class Estanco {
         } catch (InterruptedException e) {
             System.out.println(e);
         }
-        semaforoEspera.release();
     }
 
+    //Este metodo lo utilizan los fumadores para consumir sus ingredientes y fumar el cigarro
     public void fumar(String nombre) {
         try {
             System.out.println(nombre + " fumandose un puchito...");
@@ -90,7 +99,6 @@ public class Estanco {
         } catch (InterruptedException ex) {
             Logger.getLogger(Estanco.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println(nombre + " se va a su casa");
     }
 
 }
