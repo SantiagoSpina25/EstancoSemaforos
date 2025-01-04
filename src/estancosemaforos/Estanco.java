@@ -19,6 +19,7 @@ public class Estanco {
     //Semaforo para que cada fumador espere a poder pedir un ingrediente y que no se pisoteen entre si
     private final Semaphore semaforoOrdenPedido = new Semaphore(1);
 
+    //Este semaforo lo utilizo para controlar a los fumadores cuando notifian al estanquero que se van
     private final Semaphore semaforoFumadores = new Semaphore(1);
 
     //Se crea un contador para cada ingrediente, ademas del tiempo de produccion y el tiempo fumando que seran constantes
@@ -105,7 +106,8 @@ public class Estanco {
             Logger.getLogger(Estanco.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    // Metodo que devuelve un booleano para saber si hay fumadores activos o no
     public boolean hayFumadores() {
         return contadorFumadores > 0;
     }
