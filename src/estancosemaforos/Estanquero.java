@@ -14,7 +14,7 @@ public class Estanquero extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (estanco.hayFumadores()) {
             estanco.producirIngrediente();
         }
     }

@@ -11,7 +11,7 @@ public class Fumador extends Thread {
 
     private Estanco estanco;
     private String nombre;
-    private int numTabacoPropio = 0, numPapelPropio = 0, numCerillasPropias = 0;
+    private int numTabacoPropio = 0, numPapelPropio = 0, numCerillasPropias = 0, cigarrosFumados = 0;
 
     public Fumador(Estanco estanco, String nombre) {
         this.estanco = estanco;
@@ -29,7 +29,8 @@ public class Fumador extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        estanco.setContadorFumadores(estanco.getContadorFumadores()+1);
+        while (cigarrosFumados < 2) {
             System.out.println("Ingredientes propios de " + nombre + " son: tabaco: " + numTabacoPropio+ ", papel:  " + numPapelPropio + ", cerillas: " + numCerillasPropias );
             try {
                 if(numTabacoPropio == 0){
@@ -49,12 +50,15 @@ public class Fumador extends Thread {
                     numTabacoPropio--;
                     numPapelPropio--;
                     numCerillasPropias--;
-                    System.out.println(nombre + " ya fumo su cigarro, esta listo para otro");
+                    cigarrosFumados++;
+
                 }
             } catch (Exception e) {
                 System.out.println(e);
             }
 
         }
+        System.out.println("*************** "+nombre + " ya fumo " + cigarrosFumados + " cigarros, se va a su casa ***************");
+        estanco.notificarFumadorTerminado();
     }
 }
